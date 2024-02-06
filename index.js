@@ -44,7 +44,7 @@ app.post('/api/characters', async (req, res) => {
   }
 
   const schema = Joi.object({
-    name: Joi.string().min(3).required()
+    name: Joi.string().min(2).required()
   });
 
   const result = schema.validate(req.body);
@@ -62,17 +62,18 @@ app.post('/api/characters', async (req, res) => {
 });
 
 
+// Swap two characters
+
 app.put('/api/characters/swap', (req, res) => {
   const { characterId1, characterId2 } = req.body;
 
-  const character1 = characters.find(c => c.id === characterId1);
-  const character2 = characters.find(c => c.id === characterId2);
+  const character1 = characters.find(c => c.name === characterId1);
+  const character2 = characters.find(c => c.name === characterId2);
 
   if (!character1 || !character2) {
     return res.status(404).send('Characters not found');
   }
 
-  // Swap the characters
   [character1.name, character2.name] = [character2.name, character1.name];
 
   res.send('Characters swapped successfully');
@@ -83,6 +84,25 @@ app.get('/api/characters/:id', (req, res) => {
   if (!character) res.status(404).send('The character does not exist');
   res.send(character);
 });
+
+
+app.delete('/api/characters/:id', (req, res) => {
+  const characterName = req.body.name; // Access character name from request body
+  const index = characters.findIndex(c => c.name === characterName);
+
+  if (index === -1) {
+    return res.status(404).send('The character does not exist');
+  }
+
+  characters.splice(index, 1);
+  res.send('Character deleted successfully');
+});
+
+
+
+
+
+
 
 const port = process.env.PORT || 3001;
 app.listen(port, () => console.log(`Listening ${port}...`));
